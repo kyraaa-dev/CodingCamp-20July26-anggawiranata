@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense &amp; Budget Visualizer</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <noscript>
+    <div class="noscript-msg">JavaScript is required to run the Expense &amp; Budget Visualizer. Please enable JavaScript in your browser settings and reload the page.</div>
+  </noscript>
+</head>
+<body>
+
+  <!-- Top navigation bar -->
+  <nav id="main-nav" role="navigation" aria-label="Main navigation">
+    <span class="app-title">💰 Budget Visualizer</span>
+    <ul class="nav-links" role="list">
+      <li><a href="#dashboard" id="nav-dashboard" aria-current="page">Dashboard</a></li>
+      <li><a href="#monthly-summary" id="nav-monthly" aria-current="false">Monthly Summary</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button id="category-modal-btn" type="button">Categories</button>
+      <button id="theme-toggle" type="button">🌙</button>
+    </div>
+  </nav>
+
+  <!-- Load error fallback -->
+  <div id="load-error" hidden role="alert"><p>⚠️ The application failed to load. Please refresh the page or try a different browser.</p></div>
+
+  <!-- Main view root -->
+  <main id="view-root">
+
+    <!-- Dashboard -->
+    <section id="dashboard" class="view" aria-label="Dashboard">
+      <div id="balance-summary" role="region"></div>
+
+      <div id="charts-area" role="region">
+        <div class="chart-container">
+          <h2 class="chart-title">Expenses by Category</h2>
+          <canvas id="pie-chart" role="img"></canvas>
+        </div>
+        <div class="chart-container">
+          <h2 class="chart-title">Income vs Expenses (Last 6 Months)</h2>
+          <canvas id="bar-chart" role="img"></canvas>
+        </div>
+      </div>
+
+      <div id="budget-progress" role="region"></div>
+
+      <div id="transaction-panel">
+        <div id="sort-controls" role="group">
+          <span class="sort-label">Sort by:</span>
+          <button class="sort-btn sort-active" data-criterion="date-desc">Date ↓</button>
+          <button class="sort-btn" data-criterion="date-asc">Date ↑</button>
+          <button class="sort-btn" data-criterion="amount-desc">Amount ↓</button>
+          <button class="sort-btn" data-criterion="amount-asc">Amount ↑</button>
+          <button class="sort-btn" data-criterion="category-asc">Category A–Z</button>
+        </div>
+
+        <ul id="transaction-list" role="list"></ul>
+
+        <section class="form-section" aria-label="Add transaction">
+          <h2>Add Transaction</h2>
+          <form id="transaction-form" novalidate>
+            <div class="form-group">
+              <label for="tx-title">Title</label>
+              <input type="text" id="tx-title" maxlength="100" placeholder="e.g. Grocery shopping" autocomplete="off" />
+              <span id="tx-title-error" class="error-msg" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="tx-amount">Amount</label>
+              <input type="number" id="tx-amount" min="0.01" max="999999999.99" step="0.01" placeholder="0.00" />
+              <span id="tx-amount-error" class="error-msg" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="tx-type">Type</label>
+              <select id="tx-type">
+                <option value="">-- Select type --</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+              <span id="tx-type-error" class="error-msg" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="tx-category">Category</label>
+              <select id="tx-category">
+                <option value="">-- Select category --</option>
+              </select>
+              <span id="tx-category-error" class="error-msg" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="tx-date">Date</label>
+              <input type="date" id="tx-date" />
+              <span id="tx-date-error" class="error-msg" role="alert"></span>
+            </div>
+            <button type="submit" id="tx-submit" class="btn-primary">Add Transaction</button>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <!-- Monthly Summary -->
+    <section id="monthly-summary" class="view hidden" aria-label="Monthly Summary">
+      <div id="month-selector" role="group">
+        <button id="month-prev" type="button">◄ Prev</button>
+        <span id="month-display" aria-live="polite"></span>
+        <button id="month-next" type="button">Next ►</button>
+      </div>
+      <div id="summary-totals" role="region"></div>
+      <div id="summary-budget-usage" role="region"></div>
+      <div id="summary-category-table" role="region"></div>
+    </section>
+
+  </main>
+
+  <!-- Category Manager Modal -->
+  <dialog id="category-modal" aria-modal="true">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <h2>Manage Categories</h2>
+        <button id="category-modal-close" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <ul id="category-list" role="list"></ul>
+        <form id="add-category-form" novalidate>
+          <div class="form-group">
+            <label for="new-category-name">New Category Name</label>
+            <input type="text" id="new-category-name" maxlength="50" placeholder="e.g. Pets" autocomplete="off" />
+            <span id="new-category-error" class="error-msg" role="alert"></span>
+          </div>
+          <button type="submit" class="btn-primary">Add Category</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Main script -->
+  <script src="js/app.js" defer></script>
+</body>
+</html>
