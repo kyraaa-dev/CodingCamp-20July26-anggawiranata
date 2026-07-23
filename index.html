@@ -13,118 +13,186 @@
 </head>
 <body>
 
-  <!-- Top navigation bar -->
-  <nav id="main-nav" role="navigation" aria-label="Main navigation">
-    <span class="app-title">💰 Budget Visualizer</span>
-    <ul class="nav-links" role="list">
-      <li><a href="#dashboard" id="nav-dashboard" aria-current="page">Dashboard</a></li>
-      <li><a href="#monthly-summary" id="nav-monthly" aria-current="false">Monthly Summary</a></li>
-    </ul>
-    <div class="nav-actions">
-      <button id="category-modal-btn" type="button">Categories</button>
-      <button id="theme-toggle" type="button">🌙</button>
-    </div>
-  </nav>
+  <!-- App Shell: sidebar + main -->
+  <div class="app-shell">
 
-  <!-- Load error fallback -->
-  <div id="load-error" hidden role="alert"><p>⚠️ The application failed to load. Please refresh the page or try a different browser.</p></div>
-
-  <!-- Main view root -->
-  <main id="view-root">
-
-    <!-- Dashboard -->
-    <section id="dashboard" class="view" aria-label="Dashboard">
-      <div id="balance-summary" role="region"></div>
-
-      <div id="charts-area" role="region">
-        <div class="chart-container">
-          <h2 class="chart-title">Expenses by Category</h2>
-          <canvas id="pie-chart" role="img"></canvas>
-        </div>
-        <div class="chart-container">
-          <h2 class="chart-title">Income vs Expenses (Last 6 Months)</h2>
-          <canvas id="bar-chart" role="img"></canvas>
-        </div>
+    <!-- ===== SIDEBAR ===== -->
+    <aside id="sidebar" role="navigation" aria-label="Sidebar navigation">
+      <div class="sidebar-header">
+        <span class="app-logo">💰</span>
+        <span class="app-title">BudgetViz</span>
       </div>
 
-      <div id="budget-progress" role="region"></div>
+      <nav class="sidebar-nav">
+        <ul role="list">
+          <li>
+            <a href="#dashboard" id="nav-dashboard" class="nav-link active" aria-current="page">
+              <span class="nav-icon">📊</span>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#monthly-summary" id="nav-monthly" class="nav-link" aria-current="false">
+              <span class="nav-icon">📅</span>
+              <span>Monthly</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
 
-      <div id="transaction-panel">
-        <div id="sort-controls" role="group">
-          <span class="sort-label">Sort by:</span>
-          <button class="sort-btn sort-active" data-criterion="date-desc">Date ↓</button>
-          <button class="sort-btn" data-criterion="date-asc">Date ↑</button>
-          <button class="sort-btn" data-criterion="amount-desc">Amount ↓</button>
-          <button class="sort-btn" data-criterion="amount-asc">Amount ↑</button>
-          <button class="sort-btn" data-criterion="category-asc">Category A–Z</button>
+      <div class="sidebar-footer">
+        <div class="sidebar-divider"></div>
+        <button id="theme-toggle" type="button" class="sidebar-action-btn" title="Toggle theme">
+          <span class="nav-icon">🌙</span>
+          <span>Dark Mode</span>
+        </button>
+        <button id="category-modal-btn" type="button" class="sidebar-action-btn" title="Manage categories">
+          <span class="nav-icon">🏷️</span>
+          <span>Categories</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== MOBILE TOP BAR ===== -->
+    <header id="mobile-header" role="banner">
+      <button id="sidebar-toggle" type="button" aria-label="Toggle menu">
+        <span class="hamburger-icon">☰</span>
+      </button>
+      <span class="app-title-mobile">💰 BudgetViz</span>
+      <div class="mobile-header-actions">
+        <button id="theme-toggle-mobile" type="button" aria-label="Toggle theme">🌙</button>
+        <button id="category-modal-btn-mobile" type="button" aria-label="Manage categories">🏷️</button>
+      </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main id="view-root" role="main">
+
+      <!-- Load error fallback -->
+      <div id="load-error" hidden role="alert">
+        <p>⚠️ The application failed to load. Please refresh the page or try a different browser.</p>
+      </div>
+
+      <!-- Dashboard -->
+      <section id="dashboard" class="view" aria-label="Dashboard">
+
+        <div class="page-header">
+          <h1 class="page-title">Dashboard</h1>
+          <span class="page-subtitle">Your financial overview</span>
         </div>
 
-        <ul id="transaction-list" role="list"></ul>
+        <!-- Balance Cards -->
+        <div id="balance-summary" role="region" aria-label="Balance summary"></div>
 
-        <section class="form-section" aria-label="Add transaction">
-          <h2>Add Transaction</h2>
-          <form id="transaction-form" novalidate>
-            <div class="form-group">
-              <label for="tx-title">Title</label>
-              <input type="text" id="tx-title" maxlength="100" placeholder="e.g. Grocery shopping" autocomplete="off" />
-              <span id="tx-title-error" class="error-msg" role="alert"></span>
-            </div>
-            <div class="form-group">
-              <label for="tx-amount">Amount</label>
-              <input type="number" id="tx-amount" min="0.01" max="999999999.99" step="0.01" placeholder="0.00" />
-              <span id="tx-amount-error" class="error-msg" role="alert"></span>
-            </div>
-            <div class="form-group">
-              <label for="tx-type">Type</label>
-              <select id="tx-type">
-                <option value="">-- Select type --</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-              </select>
-              <span id="tx-type-error" class="error-msg" role="alert"></span>
-            </div>
-            <div class="form-group">
-              <label for="tx-category">Category</label>
-              <select id="tx-category">
-                <option value="">-- Select category --</option>
-              </select>
-              <span id="tx-category-error" class="error-msg" role="alert"></span>
-            </div>
-            <div class="form-group">
-              <label for="tx-date">Date</label>
-              <input type="date" id="tx-date" />
-              <span id="tx-date-error" class="error-msg" role="alert"></span>
-            </div>
-            <button type="submit" id="tx-submit" class="btn-primary">Add Transaction</button>
-          </form>
-        </section>
-      </div>
-    </section>
+        <!-- Charts -->
+        <div id="charts-area" role="region" aria-label="Charts">
+          <div class="chart-container">
+            <h2 class="chart-title">Expenses by Category</h2>
+            <canvas id="pie-chart" role="img" aria-label="Doughnut chart of expenses by category"></canvas>
+          </div>
+          <div class="chart-container">
+            <h2 class="chart-title">Income vs Expenses (Last 6 Months)</h2>
+            <canvas id="bar-chart" role="img" aria-label="Bar chart of income vs expenses last 6 months"></canvas>
+          </div>
+        </div>
 
-    <!-- Monthly Summary -->
-    <section id="monthly-summary" class="view hidden" aria-label="Monthly Summary">
-      <div id="month-selector" role="group">
-        <button id="month-prev" type="button">◄ Prev</button>
-        <span id="month-display" aria-live="polite"></span>
-        <button id="month-next" type="button">Next ►</button>
-      </div>
-      <div id="summary-totals" role="region"></div>
-      <div id="summary-budget-usage" role="region"></div>
-      <div id="summary-category-table" role="region"></div>
-    </section>
+        <!-- Budget Progress -->
+        <div id="budget-progress" role="region" aria-label="Budget progress"></div>
 
-  </main>
+        <!-- Transaction Panel -->
+        <div id="transaction-panel">
+          <!-- Sort Controls -->
+          <div class="panel-header">
+            <h2 class="panel-title">Transactions</h2>
+            <div id="sort-controls" role="group" aria-label="Sort transactions">
+              <span class="sort-label">Sort:</span>
+              <button class="sort-btn sort-active" data-criterion="date-desc">Date ↓</button>
+              <button class="sort-btn" data-criterion="date-asc">Date ↑</button>
+              <button class="sort-btn" data-criterion="amount-desc">Amount ↓</button>
+              <button class="sort-btn" data-criterion="amount-asc">Amount ↑</button>
+              <button class="sort-btn" data-criterion="category-asc">Category A–Z</button>
+            </div>
+          </div>
 
-  <!-- Category Manager Modal -->
-  <dialog id="category-modal" aria-modal="true">
+          <ul id="transaction-list" role="list" aria-label="Transaction list"></ul>
+
+          <!-- Add Transaction Form -->
+          <section class="form-section" aria-label="Add transaction">
+            <h2 class="panel-title">Add Transaction</h2>
+            <form id="transaction-form" novalidate>
+              <div class="form-group">
+                <label for="tx-title"><span class="field-icon">✏️</span> Title</label>
+                <input type="text" id="tx-title" maxlength="100" placeholder="e.g. Grocery shopping" autocomplete="off" />
+                <span id="tx-title-error" class="error-msg" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label for="tx-amount"><span class="field-icon">💵</span> Amount</label>
+                <input type="number" id="tx-amount" min="0.01" max="999999999.99" step="0.01" placeholder="0.00" />
+                <span id="tx-amount-error" class="error-msg" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label for="tx-type"><span class="field-icon">🔄</span> Type</label>
+                <select id="tx-type">
+                  <option value="">-- Select type --</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+                <span id="tx-type-error" class="error-msg" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label for="tx-category"><span class="field-icon">🏷️</span> Category</label>
+                <select id="tx-category">
+                  <option value="">-- Select category --</option>
+                </select>
+                <span id="tx-category-error" class="error-msg" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label for="tx-date"><span class="field-icon">📅</span> Date</label>
+                <input type="date" id="tx-date" />
+                <span id="tx-date-error" class="error-msg" role="alert"></span>
+              </div>
+              <div class="form-group form-submit-group">
+                <button type="submit" id="tx-submit" class="btn-primary">Add Transaction</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+      </section>
+
+      <!-- Monthly Summary -->
+      <section id="monthly-summary" class="view hidden" aria-label="Monthly Summary">
+
+        <div class="page-header">
+          <h1 class="page-title">Monthly Summary</h1>
+          <span class="page-subtitle">Track your monthly spending</span>
+        </div>
+
+        <div id="month-selector" role="group" aria-label="Month navigation">
+          <button id="month-prev" type="button" aria-label="Previous month">◄ Prev</button>
+          <span id="month-display" aria-live="polite"></span>
+          <button id="month-next" type="button" aria-label="Next month">Next ►</button>
+        </div>
+
+        <div id="summary-totals" role="region" aria-label="Monthly totals"></div>
+        <div id="summary-budget-usage" role="region" aria-label="Monthly budget usage"></div>
+        <div id="summary-category-table" role="region" aria-label="Spending by category"></div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===== CATEGORY MANAGER MODAL ===== -->
+  <dialog id="category-modal" aria-modal="true" aria-label="Manage categories">
     <div class="modal-inner">
       <div class="modal-header">
         <h2>Manage Categories</h2>
-        <button id="category-modal-close" type="button">✕</button>
+        <button id="category-modal-close" type="button" aria-label="Close modal">✕</button>
       </div>
       <div class="modal-body">
-        <ul id="category-list" role="list"></ul>
-        <form id="add-category-form" novalidate>
+        <ul id="category-list" role="list" aria-label="Category list"></ul>
+        <form id="add-category-form" novalidate aria-label="Add new category">
           <div class="form-group">
             <label for="new-category-name">New Category Name</label>
             <input type="text" id="new-category-name" maxlength="50" placeholder="e.g. Pets" autocomplete="off" />
@@ -136,8 +204,11 @@
     </div>
   </dialog>
 
-  <!-- Toast Container -->
-  <div id="toast-container" aria-live="polite"></div>
+  <!-- ===== MOBILE SIDEBAR OVERLAY ===== -->
+  <div id="sidebar-overlay" class="sidebar-overlay hidden" aria-hidden="true"></div>
+
+  <!-- ===== TOAST CONTAINER ===== -->
+  <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
 
   <!-- Main script -->
   <script src="js/app.js" defer></script>
